@@ -1,3 +1,4 @@
+#! /usr/bin/python
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2011, Willow Garage, Inc.
@@ -43,6 +44,8 @@ import subprocess
 import os
 import sys
 import yaml
+import rospy
+from std_msgs.msg import String
 from .msg import ExchangeApp, Icon
 
 class Exchange():
@@ -141,7 +144,26 @@ class Exchange():
             self._on_error("No debian found for install")
             return False
         print "install app"
-        data = subprocess.Popen(["sudo", "rosget", "install", deb], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        p = subprocess.Popen(["sudo", "rosget", "install", deb], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #data = p.communicate()
+        #data = "test string"
+        pub = rospy.Publisher('install_status', String)
+        l1 = []
+        for line in iter(p.stdout.readline, ''):
+            if line.rstrip() != '':
+                pub.publish(line.rstrip())
+                l1.append(line)
+            else:
+                break
+        l2 = []
+        for line in iter(p.stderr.readline, ''):
+            if line.rstrip() != '':
+                pub.publish(line.rstrip())
+                l2.append(line)
+            else:
+                break
+
+        data = (''.join(l1), ''.join(l2))
         val = (data[0] or '').strip()
         print val
         self.update_local()
