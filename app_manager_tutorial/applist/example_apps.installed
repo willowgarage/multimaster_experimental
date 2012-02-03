@@ -1,0 +1,5 @@
+apps:
+ - display: Example 1
+   app: app_manager_tutorial/example
+ - display: Example 2
+   app: app_manager_tutorial/example2

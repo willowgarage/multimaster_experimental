@@ -1,0 +1,22 @@
+<package>
+  <description brief="ronin: rospy adapter for masterless nodes">
+
+     Ronin adapts the rospy API to enable masterless nodes. It is expected that ronin nodes have proxy nodes that attach them to whatever master is necessary.
+
+  </description>
+  <author>Ken Conley</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ronin</url>
+  <depend package="rospy"/>
+
+  <export>
+    <rosdoc config="rosdoc.yaml"/>    
+  </export>
+  
+  <platform os="ubuntu" version="9.04"/>
+  <platform os="ubuntu" version="9.10"/>
+  <platform os="ubuntu" version="10.04"/>
+</package>
+
+

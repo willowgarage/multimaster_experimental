@@ -1,0 +1,4 @@
+subscribed_topics:
+  monkey: std_msgs/Float32
+published_topics:
+  ape: std_msgs/String

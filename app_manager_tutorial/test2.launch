@@ -1,0 +1,10 @@
+<launch>
+  <rosparam>
+robot:
+  name: robot2
+  type: turtlebot
+  </rosparam>
+  <node pkg="app_manager" type="app_manager" name="app_manager" args="--applist $(find app_manager_tutorial)/applist" output="screen">
+        <param name="interface_master" value="http://localhost:11368"/>
+  </node>
+</launch>

@@ -1,0 +1,3 @@
+pil:
+  macports: py26-pil
+  ubuntu: python-imaging

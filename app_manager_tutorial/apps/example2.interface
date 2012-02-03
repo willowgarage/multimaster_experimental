@@ -1,0 +1,4 @@
+subscribed_topics:
+  tiger: std_msgs/Float32
+published_topics:
+  lion: std_msgs/String

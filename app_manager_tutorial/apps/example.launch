@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="app_manager_tutorial" type="example.py" name="example" output="screen" />
+</launch>
