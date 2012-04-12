@@ -8,7 +8,7 @@
   <license>MIT</license>
   <review status="thirdparty" notes=""/>
   <url>http://code.google.com/p/pyqrnative</url>
-  <rosdep name="pil" />
+  <rosdep name="python-imaging" />
 </package>
 
 
