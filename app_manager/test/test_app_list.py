@@ -37,6 +37,7 @@ import os
 import sys
 import unittest
 
+import rospkg
 import rosunit
 
 def touch(filename):
@@ -46,7 +47,8 @@ class AppListTest(unittest.TestCase):
   
     def test_AppList(self):
         import app_manager
-        path = roslib.packages.get_pkg_dir(PKG)
+        rospack = rospkg.RosPack()
+        path = rospack.get_path(PKG)
         test_dir = os.path.join(path, 'test')
 
         app_list = app_manager.AppList([os.path.join(test_dir, 'applist0')])
