@@ -40,7 +40,7 @@ import traceback
 import time
 import urlparse
 
-from roslib.xmlrpc import XmlRpcHandler
+from rosgraph.xmlrpc import XmlRpcHandler
 
 import rospy.names
 

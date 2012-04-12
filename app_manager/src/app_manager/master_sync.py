@@ -5,14 +5,14 @@ import rospy
 import time
 import urlparse
 
-from roslib.xmlrpc import XmlRpcHandler
+from rosgraph.xmlrpc import XmlRpcHandler
 
 from rospy.core import global_name, is_topic
 from rospy.impl.validators import non_empty, ParameterInvalid
 
 from rospy.impl.masterslave import apivalidate
 
-from roslib.xmlrpc import XmlRpcNode
+from rosgraph.xmlrpc import XmlRpcNode
 import roslib.names
 import threading
 
@@ -243,7 +243,7 @@ class MasterSync(object):
         self.thread = None
             
         # Get master URIs
-        local_master = roslib.rosenv.get_master_uri()
+        local_master = rosgraph.get_master_uri()
 
         m = rosgraph.masterapi.Master(rospy.get_name(), master_uri=foreign_master)
         r = rospy.Rate(1)

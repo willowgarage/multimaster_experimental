@@ -50,7 +50,9 @@ from rospy.impl.registration import Registration
 from rospy.impl.tcpros_base import TCPROSTransport, TCPROSTransportProtocol, TCPROSServer
 from rospy.service import ServiceManager
 from rospy.impl.tcpros_service import ServiceImpl
-from roslib.xmlrpc import XmlRpcNode
+from rosgraph.xmlrpc import XmlRpcNode
+import rosgraph.network
+import rosgraph
 
 from new import classobj
 
@@ -153,10 +155,10 @@ class Proxy(object):
         external_tcpros.start_server(port=tcpros_port)
 
         # TODO: this may report the address of the wrong interface
-        rospy.loginfo("ROSRPC URI is rosrpc://%s:%s"%(roslib.network.get_local_address(), tcpros_port))
+        rospy.loginfo("ROSRPC URI is rosrpc://%s:%s"%(rosgraph.network.get_local_address(), tcpros_port))
 
         # Startup XMLRPC interface so we can do pub/sub
-        master_uri = roslib.rosenv.get_master_uri()
+        master_uri = rosgraph.get_master_uri()
         name = 'proxy-proxy'
 
         
@@ -208,7 +210,7 @@ class Proxy(object):
                 '_md5sum': real_resp._md5sum,   
                 '_full_text': real_resp._full_text,   
                 }
-            service_class = classobj('s_passthrough_%s'%i, (roslib.message.ServiceDefinition,), {
+            service_class = classobj('s_passthrough_%s'%i, (object,), {
                     '_type' : real_service_class._type,
                     '_md5sum' : real_service_class._md5sum,
                     '_request_class' : classobj('passthrough_request_%s'%i, (PassthroughServiceMessage, ), request_d),
