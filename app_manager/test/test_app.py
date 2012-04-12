@@ -37,6 +37,7 @@ import os
 import sys
 import unittest
 
+import rospkg
 import rosunit
 
 class AppTest(unittest.TestCase):
@@ -113,7 +114,8 @@ class AppTest(unittest.TestCase):
         
     def test_find_resource(self):
         from app_manager.app import find_resource
-        path = roslib.packages.get_pkg_dir(PKG)
+        rospack = rospkg.RosPack()
+        path = rospack.get_path(PKG)
         test_dir = os.path.join(path, 'test')
 
         e = os.path.join(test_dir, 'empty.interface')
@@ -134,7 +136,8 @@ class AppTest(unittest.TestCase):
             pass
         
     def test_load_AppDefinition_by_name(self):
-        rl_dir = roslib.packages.get_pkg_dir('roslaunch')
+        rospack = rospkg.RosPack()
+        rl_dir = rospack.get_path('roslaunch')
         from app_manager import NotFoundException, InternalAppException
         from app_manager.app import load_AppDefinition_by_name, Interface
         try:
@@ -181,8 +184,9 @@ class AppTest(unittest.TestCase):
             app_manager.app.load_AppDefinition_from_file = load_actual
         
     def test_load_AppDefinition_from_file(self):
-        rl_dir = roslib.packages.get_pkg_dir('roslaunch')
-        path = roslib.packages.get_pkg_dir(PKG)
+        rospack = rospkg.RosPack()
+        rl_dir = rospack.get_path('roslaunch')
+        path = rospack.get_path(PKG)
         test_dir = os.path.join(path, 'test')
 
         from app_manager.app import load_AppDefinition_from_file, Interface
@@ -200,7 +204,8 @@ class AppTest(unittest.TestCase):
         
     def test_load_Interface_from_file(self):
         from app_manager.app import load_Interface_from_file
-        path = roslib.packages.get_pkg_dir(PKG)
+        rospack = rospkg.RosPack()
+        path = rospack.get_path(PKG)
         test_dir = os.path.join(path, 'test')
 
         empty = load_Interface_from_file(os.path.join(test_dir, 'empty.interface'))

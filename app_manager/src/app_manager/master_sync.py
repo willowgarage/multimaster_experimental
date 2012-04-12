@@ -1,20 +1,19 @@
-import roslib.network
-import rosgraph.masterapi
-import rospy
-
+import threading
 import time
 import urlparse
 
-from rosgraph.xmlrpc import XmlRpcHandler
+import rosgraph
+import rosgraph.names
+import rosgraph.network
+
+import rospy
 
 from rospy.core import global_name, is_topic
 from rospy.impl.validators import non_empty, ParameterInvalid
 
 from rospy.impl.masterslave import apivalidate
 
-from rosgraph.xmlrpc import XmlRpcNode
-import roslib.names
-import threading
+from rosgraph.xmlrpc import XmlRpcNode, XmlRpcHandler
 
 def is_publishers_list(paramName):
     return ('is_publishers_list', paramName)
@@ -96,10 +95,10 @@ class RemoteManager(object):
     def __init__(self, master_uri, cb):
         self.master_uri = master_uri
 
-        ns = roslib.names.get_ros_namespace()
-        anon_name = roslib.names.anonymous_name('master_sync')
+        ns = rosgraph.names.get_ros_namespace()
+        anon_name = rosgraph.names.anonymous_name('master_sync')
 
-        self.master = rosgraph.masterapi.Master(roslib.names.ns_join(ns, anon_name), master_uri=self.master_uri)
+        self.master = rosgraph.Master(rosgraph.names.ns_join(ns, anon_name), master_uri=self.master_uri)
 
         self.cb = cb
 
@@ -145,8 +144,8 @@ class RemoteManager(object):
             return
 
         # These registrations need to be anonymous so the master doesn't kill us if there is a duplicate name
-        anon_name = roslib.names.anonymous_name('master_sync')
-        master = rosgraph.masterapi.Master(anon_name, master_uri=self.master_uri)
+        anon_name = rosgraph.names.anonymous_name('master_sync')
+        master = rosgraph.Master(anon_name, master_uri=self.master_uri)
 
         rospy.loginfo("Registering (%s,%s) on master %s"%(topic,uri,master.master_uri))
 
@@ -177,14 +176,14 @@ class RemoteManager(object):
         service_name = self.resolve(service_name)
         try:
             return self.master.lookupService(service_name)
-        except rosgraph.masterapi.Error:
+        except rosgraph.MasterError:
             return None
 
     def advertise_service(self, service_name, uri):
 
         # These registrations need to be anonymous so the master doesn't kill us if there is a duplicate name
-        anon_name = roslib.names.anonymous_name('master_sync')
-        master = rosgraph.masterapi.Master(anon_name, master_uri=self.master_uri)
+        anon_name = rosgraph.names.anonymous_name('master_sync')
+        master = rosgraph.Master(anon_name, master_uri=self.master_uri)
 
         if (service_name) in self.srvs:
             if self.srvs[service_name][0] == uri:
@@ -192,7 +191,7 @@ class RemoteManager(object):
             else:
                 self.unadvertise_service(service_name)
 
-        fake_api = 'http://%s:0'%roslib.network.get_host_name()
+        fake_api = 'http://%s:0'%rosgraph.network.get_host_name()
         rospy.loginfo("Registering service (%s,%s) on master %s"%(service_name, uri, master.master_uri))
         master.registerService(service_name, uri, fake_api)
 
@@ -207,8 +206,8 @@ class RemoteManager(object):
 
 
     def resolve(self, topic):
-        ns = roslib.names.namespace(self.master.caller_id)
-        return roslib.names.ns_join(ns, topic)
+        ns = rosgraph.names.namespace(self.master.caller_id)
+        return rosgraph.names.ns_join(ns, topic)
 
     def unsubscribe_all(self):
         for (t,u),m in self.subs.iteritems():
@@ -245,7 +244,7 @@ class MasterSync(object):
         # Get master URIs
         local_master = rosgraph.get_master_uri()
 
-        m = rosgraph.masterapi.Master(rospy.get_name(), master_uri=foreign_master)
+        m = rosgraph.Master(rospy.get_name(), master_uri=foreign_master)
         r = rospy.Rate(1)
         rospy.loginfo("Waiting for foreign master [%s] to come up..."%(foreign_master))
         while not check_master(m) and not rospy.is_shutdown():
