@@ -34,29 +34,30 @@
 
 """Node that proxies ROS topics and services in order to bridge firewalls"""
 
+import thread
+from new import classobj
+
+# for service_connection_handler
+import genpy
+import roslib.message
+
 import rospy
+import rospy.names
+
+from rospy.impl.registration import Registration, RegistrationListeners
+from rospy.impl.tcpros_base import TCPROSTransport, TCPROSTransportProtocol, TCPROSServer
+from rospy.service import ServiceManager
+from rospy.impl.tcpros_service import ServiceImpl
+
+import rosgraph
+from rosgraph.xmlrpc import XmlRpcNode
+import rosgraph.network
 
 import rostopic
 import rosservice
 
 import rosproxy.handler
 import rosproxy.tcpros
-
-# for service_connection_handler
-import roslib.message
-import rospy.names
-import thread
-from rospy.impl.registration import Registration
-from rospy.impl.tcpros_base import TCPROSTransport, TCPROSTransportProtocol, TCPROSServer
-from rospy.service import ServiceManager
-from rospy.impl.tcpros_service import ServiceImpl
-from rosgraph.xmlrpc import XmlRpcNode
-import rosgraph.network
-import rosgraph
-
-from new import classobj
-
-import rospy.impl.registration 
 
 def pub_forwarder(msg, pub):
     """
@@ -65,7 +66,7 @@ def pub_forwarder(msg, pub):
     pub.publish(msg)
 
 # variant of AnyMsg that initializes from a msg_class
-class PassthroughServiceMessage(roslib.message.Message):
+class PassthroughServiceMessage(genpy.Message):
     
     def __init__(self):
         self._buff = None
@@ -86,7 +87,7 @@ class Proxy(object):
         
         self.services = {}
         
-        self.service_manager = ServiceManager(registration_listeners=rospy.impl.registration.RegistrationListeners())
+        self.service_manager = ServiceManager(registration_listeners=RegistrationListeners())
         self.topic_manager = rospy.topics._TopicManager()
 
         self.subs_internal = {}
