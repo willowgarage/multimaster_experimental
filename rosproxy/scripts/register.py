@@ -33,13 +33,11 @@
 
 NAME="register.py"
 
-import roslib; roslib.load_manifest('rosproxy')
-
 import os
 import sys
 
-import roslib.network
-import rosgraph.masterapi
+import rosgraph
+import rosgraph.network
 import rospy
 
 def register_main():
@@ -57,10 +55,10 @@ def register_main():
             parser.error("Please specify service name and URI")
         _, name, uri = args
         
-        m = rosgraph.masterapi.Master('rosproxy_register')
+        m = rosgraph.Master('rosproxy_register')
         # register proxy with URI of port zero. this will create bad info
         # on master, but at least it will accumulate under the same port
-        fake_api = 'http://%s:0'%roslib.network.get_host_name()
+        fake_api = 'http://%s:0'%rosgraph.network.get_host_name()
         m.registerService(name, uri, fake_api)
 
     elif reg == 'pub':
@@ -69,7 +67,7 @@ def register_main():
         _, name, topic_type, uri = args
 
         
-        m = rosgraph.masterapi.Master('rosproxy_register')
+        m = rosgraph.Master('rosproxy_register')
         m.registerPublisher(name, topic_type, uri)
     else:
         parser.error("Please specify 'pub' or 'service'")
