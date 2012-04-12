@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-import roslib
-roslib.load_manifest('foreign_relay')
-
 import sys
 import os
 import time
