@@ -34,10 +34,11 @@
 
 # author: leibs
 
-import roslib.names
-import rospy
 import thread
 import time
+
+import rosgraph.names
+import rospy
 
 import roslaunch.parent
 import roslaunch.pmon
@@ -118,7 +119,7 @@ class AppManager(object):
                 self._list_apps_pub.publish([], self._app_list.get_app_list())
     
     def scoped_name(self, name):
-        return roslib.names.canonicalize_name('/%s/%s'%(self._robot_name, rospy.remap_name(name)))
+        return rosgraph.names.canonicalize_name('/%s/%s'%(self._robot_name, rospy.remap_name(name)))
 
     def handle_get_app_details(self, req):
         return GetAppDetailsResponse(app=self._exchange.get_app_details(req.name))
