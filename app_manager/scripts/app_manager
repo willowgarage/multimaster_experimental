@@ -26,6 +26,12 @@ def main(argv, stdout, environ):
     parser.add_option("--applist", dest="applist_directory",
                       default=applist_default,
                       help="path to applist directories, semi-colon delimited", metavar="PATH")
+
+    #flag for running multiple apps at once
+    parser.set_defaults(singleapp=True)
+    parser.add_option("-s", "--singleapp", action="store_true", dest="singleapp")
+    parser.add_option("-m", "--multipleapp", action="store_false", dest="singleapp")
+
     options, args = parser.parse_args(args)
     for i in options.applist_directory.split(';'):
         if not os.path.exists(i):
@@ -56,7 +62,7 @@ def main(argv, stdout, environ):
             print >> sys.stderr, "Failed to load exchange: %s"%(str(e))
             sys.exit(1)
     
-    am = app_manager.AppManager(robot_name, interface_master, app_list, exchange)
+    am = app_manager.AppManager(robot_name, interface_master, app_list, exchange, options.singleapp)
 
     rospy.on_shutdown(am.shutdown)
 

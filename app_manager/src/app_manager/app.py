@@ -215,6 +215,19 @@ def _AppDefinition_load_clients_entry(app_data, appfile="UNKNOWN"):
         if not type(manager_data) == dict:
             raise InvalidAppException("Malformed appfile [%s]: manager data must be a map"%(appfile))
 
+        if client_type == 'web':
+            if manager_data.has_key('path'):
+                url = find_resource(manager_data['path'])
+                # newurl = url.replace('/opt/ros/electric/stacks','')
+                with open('/etc/ros/app_platform/apache2_config.yaml','r') as f:
+                    y = yaml.load(f.read())
+                    y = y or {} #coerce to dict
+                    for key,value in  y["aliases"].iteritems():
+                        newurl = url.replace(value, '')     
+                        if newurl != url:
+                            manager_data['path'] = '/' + key + newurl
+                            break
+
         app_data = c.get('app', {})
         if not type(app_data) == dict:
             raise InvalidAppException("Malformed appfile [%s]: app data must be a map"%(appfile))
