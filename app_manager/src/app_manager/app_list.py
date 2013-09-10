@@ -71,8 +71,13 @@ def read_Icon_file(filename):
     else:
         icon.format = ""
         return icon
-    icon.data = open(filename, "rb").read()
-    return icon
+
+    if os.path.isfile(filename):
+        icon.data = open(filename, "rb").read()
+        return icon
+    else:
+        icon.format = ""
+        return icon
 
 def AppDefinition_to_App(app_definition):
     a = App(name=app_definition.name, display_name=app_definition.display_name, icon=read_Icon_file(app_definition.icon))
