@@ -114,7 +114,11 @@ class InstalledFile(object):
                 for areqd in ['app']:
                     if not areqd in app:
                         raise InvalidAppException("installed file [%s] app definition is missing required key [%s]"%(self.filename, areqd))
-                available_apps.append(load_AppDefinition_by_name(app['app']))
+                try:
+                    available_apps.append(load_AppDefinition_by_name(app['app']))
+                except AppException as e:
+                    rospy.logwarn("ERROR: %s from file: %s"%(str(e), self.filename))
+                    
                 
         self.available_apps = available_apps
 
@@ -170,11 +174,11 @@ class AppList(object):
                     app_list.extend(installed_file.available_apps)
 
                 except AppException as ae:
-                    rospy.logwarn("ERROR: %s"%(str(ae)))
+                    rospy.logwarn("ERROR(AppException): %s"%(str(ae)))
                     rospy.logwarn("Marking %s as bad"%(filename))
                     invalid_installed_files.append((filename, ae))
                 except Exception as e:
-                    rospy.logwarn("ERROR: %s"%(str(e)))
+                    rospy.logwarn("ERROR(Exception): %s"%(str(e)))
                     rospy.logwarn("Marking %s as bad"%(filename))
                     invalid_installed_files.append((filename, e))
 
