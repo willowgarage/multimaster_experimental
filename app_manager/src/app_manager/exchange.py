@@ -94,7 +94,6 @@ class Exchange():
         for i in val.split("\n"):
             if (i.find(deb) > 0):
                 return (i.find("ii") == 0)
-        self._on_error("Error getting installed packages: " + str(data))
         return False
 
     def get_installed_apps(self):
@@ -141,7 +140,7 @@ class Exchange():
                     return False #Somehow a dupe                                                                                                                                                                                              
                 deb = self._debs[i.name]
         if (deb == False):
-            self._on_error("No debian found for install")
+            self._on_error("No deb found for install")
             return False
         rospy.loginfo("install app")
         p = subprocess.Popen(["sudo", "rosget", "install", deb], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
