@@ -42,10 +42,14 @@ currently installed applications.
 import os
 import sys
 import yaml
+import logging
 
 from .app import load_AppDefinition_by_name
 from .msg import App, ClientApp, KeyValue, Icon
 from .exceptions import AppException, InvalidAppException
+
+info = logging.Logger.info
+warn = logging.Logger.warning
 
 def get_default_applist_directory():
     """
@@ -148,12 +152,12 @@ class AppList(object):
             
         
         for f in set(self.installed_files.keys()) - set(dir_list):
-            print "deleting installation data for [%s]"%(f)
+            info("deleting installation data for [%s]"%(f))
             del self.installed_files[f]
         
         for i in self.applist_directories:
             for f in os.listdir(i):
-                print f
+                info(f)
                 if not f.endswith('.installed'):
                     continue
                 try:
@@ -161,7 +165,7 @@ class AppList(object):
                         installed_file = self.installed_files[f]
                         installed_file.update()
                     else:
-                        print "loading installation data for [%s]"%(f)
+                        info("loading installation data for [%s]"%(f))
                         filename = os.path.join(i, f)
                         installed_file = InstalledFile(filename)
                         self.installed_files[f] = installed_file
@@ -169,10 +173,10 @@ class AppList(object):
                     app_list.extend(installed_file.available_apps)
 
                 except AppException as ae:
-                    print >> sys.stderr, "ERROR: %s"%(str(ae))
+                    warn("ERROR: %s"%(str(ae)))
                     invalid_installed_files.append((filename, ae))
                 except Exception as e:
-                    print >> sys.stderr, "ERROR: %s"%(str(e))
+                    warn("ERROR: %s"%(str(e)))
                     invalid_installed_files.append((filename, e))
 
         self.app_list = app_list
