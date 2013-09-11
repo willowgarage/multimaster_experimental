@@ -42,14 +42,11 @@ currently installed applications.
 import os
 import sys
 import yaml
-import logging
+import rospy
 
 from .app import load_AppDefinition_by_name
 from .msg import App, ClientApp, KeyValue, Icon
 from .exceptions import AppException, InvalidAppException
-
-info = logging.Logger.info
-warn = logging.Logger.warning
 
 def get_default_applist_directory():
     """
@@ -152,12 +149,12 @@ class AppList(object):
             
         
         for f in set(self.installed_files.keys()) - set(dir_list):
-            info("deleting installation data for [%s]"%(f))
+            rospy.loginfo("deleting installation data for [%s]"%(f))
             del self.installed_files[f]
         
         for i in self.applist_directories:
             for f in os.listdir(i):
-                info(f)
+                rospy.loginfo(f)
                 if not f.endswith('.installed'):
                     continue
                 try:
@@ -165,7 +162,7 @@ class AppList(object):
                         installed_file = self.installed_files[f]
                         installed_file.update()
                     else:
-                        info("loading installation data for [%s]"%(f))
+                        rospy.loginfo("loading installation data for [%s]"%(f))
                         filename = os.path.join(i, f)
                         installed_file = InstalledFile(filename)
                         self.installed_files[f] = installed_file
@@ -173,10 +170,12 @@ class AppList(object):
                     app_list.extend(installed_file.available_apps)
 
                 except AppException as ae:
-                    warn("ERROR: %s"%(str(ae)))
+                    rospy.logwarn("ERROR: %s"%(str(ae)))
+                    rospy.logwarn("Marking %s as bad"%(filename))
                     invalid_installed_files.append((filename, ae))
                 except Exception as e:
-                    warn("ERROR: %s"%(str(e)))
+                    rospy.logwarn("ERROR: %s"%(str(e)))
+                    rospy.logwarn("Marking %s as bad"%(filename))
                     invalid_installed_files.append((filename, e))
 
         self.app_list = app_list
