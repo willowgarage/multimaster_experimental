@@ -36,6 +36,7 @@
 
 import thread
 import time
+import traceback
 
 import rosgraph.names
 import rospy
@@ -224,7 +225,7 @@ class AppManager(object):
             interface_sync = MasterSync(self._interface_master, foreign_pub_names=fp, local_pub_names=lp)
             self._interface_syncs[appname] = interface_sync
 
-            thread.start_new_thread(self.app_monitor,(appname, launch))
+            thread.start_new_thread(self.app_monitor, (appname,))
 
             return StartAppResponse(started=True, message="app [%s] started"%(appname), namespace=self._app_interface)
         
@@ -235,7 +236,7 @@ class AppManager(object):
             except:
                 pass
             self._status_pub.publish(AppStatus(AppStatus.INFO, 'app start failed'))
-            rospy.logerr("app start failed")
+            rospy.logerr("app start failed:\n%s"%(traceback.format_exc()))
             return StartAppResponse(started=False, message="internal error [%s]"%(str(e)), error_code=StatusCodes.INTERNAL_ERROR)
 
     def _stop_launch(self, appname):
@@ -258,22 +259,21 @@ class AppManager(object):
         rospy.loginfo("handle stop app: %s"%(req.name))
         return self.stop_app(req.name)
 
-    def app_monitor(self, appname, launch):
-        while launch:
+    def app_monitor(self, appname):
+        while appname in self._launches:
+            launch = self._launches[appname]
+            pm = launch.pm
+            if pm and pm.done:
+                time.sleep(1.0)
+                rospy.loginfo("Launch finished for %s"%(appname))
+                self.stop_app(appname)
+                break
             time.sleep(0.1)
-            if launch:
-                pm = launch.pm
-                if pm:
-                    if pm.done:
-                        time.sleep(1.0)
-                        self.stop_app(appname)
-                        break
 
     def stop_app(self, appname):
         resp = StopAppResponse(stopped=False)
         current_app_definitions = self._current_app_definitions
         current_apps = self._current_apps
-        launches = self._launches
         stopped_apps = []
         try:
             for app in current_app_definitions:
