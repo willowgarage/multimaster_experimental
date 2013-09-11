@@ -178,7 +178,8 @@ class AppManager(object):
                 if app.name == req.name:
                     return StartAppResponse(started=True, message="app [%s] already started"%(req.name), namespace=self._app_interface)
                 elif (self._single_app):
-                    return StartAppResponse(started=False, message="Please stop the running app before starting another app.", error_code=StatusCodes.MULTIAPP_NOT_SUPPORTED)
+                    self.stop_apps()
+                    #return StartAppResponse(started=False, message="Please stop the running app before starting another app.", error_code=StatusCodes.MULTIAPP_NOT_SUPPORTED)
 
         # TODO: the app list has already loaded the App data.  We should use that instead for consistency
 
@@ -303,15 +304,14 @@ class AppManager(object):
         resp = StopAppResponse(stopped=False)
         current_app_definitions = self._current_app_definitions
         current_apps = self._current_apps
-        launches = self._launches
         try:
             for app in current_app_definitions:
-                launches[app.name].shutdown()
+                self._stop_launch(app.name)
                 app_to_stop = current_apps[current_app_definitions.index(app)]
                 current_apps.remove(app_to_stop)
                 current_app_definitions.remove(app)
                 self._set_current_apps(current_apps, current_app_definitions)
-                resp.stopped =True
+                resp.stopped = True
         except Exception as e:
             rospy.logerr("handle stop app: internal error %s"%(e))
             resp.error_code = StatusCodes.INTERNAL_ERROR
