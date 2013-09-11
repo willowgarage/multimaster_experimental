@@ -191,23 +191,4 @@ class AppList(object):
         """
         Update app list
         """
-        
-        bad = True
-        #TODO: this detects when the directories are actually modified.
-        #It does not work because os.stat(i).st_mtime does not change if
-        #only a file is modified.
-        #s = []
-        #for i in self.applist_directories:
-        #    s.append(os.stat(i).st_mtime)
-        #
-        #bad = True
-        #if self._applist_directory_mtime != None:
-        #    if len(s) == len(self._applist_directory_mtime):
-        #        bad = False
-        #        for i in range(0, len(s)):
-        #            if s[i] != self._applist_directory_mtime[i]:
-        #                bad = True
-        
-        if (bad):
-            self._load()
-            #self._applist_directory_mtime = s
+        self._load()
