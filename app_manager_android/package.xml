@@ -1,0 +1,17 @@
+<package>
+  <name>app_manager_android</name>
+  <version>0.0.0</version>
+  <description>
+     Code to assist using app_manager with Android.
+  </description>
+  <maintainer email="foo@foo.com">Ken Conley</maintainer>
+  <license>BSD</license>
+  <url>http://ros.org/wiki/app_manager_android</url>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>pyqrnative</build_depend>
+  <run_depend>pyqrnative</run_depend>
+  <build_depend>roslib</build_depend>
+  <run_depend>roslib</run_depend>
+</package>
+
+

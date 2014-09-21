@@ -1,0 +1,15 @@
+<package>
+  <name>pyqrnative</name>
+  <version>0.0.0</version>
+  <description>
+     Native Python library for QRCodes using PIL.
+  </description>
+  <maintainer email="foo@foo.com">Sam Curren</maintainer>
+  <license>MIT</license>
+  <url>http://code.google.com/p/pyqrnative</url>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>python-imaging</build_depend>
+  <run_depend>python-imaging</run_depend>
+</package>
+
+

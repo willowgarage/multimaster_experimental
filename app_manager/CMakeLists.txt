@@ -1,15 +1,38 @@
-cmake_minimum_required(VERSION 2.4.6)
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+cmake_minimum_required(VERSION 2.8.3)
+project(app_manager)
+find_package(catkin REQUIRED COMPONENTS
+  rospy rosunit roslaunch rosgraph message_generation
+)
+catkin_python_setup()
 
-rosbuild_init()
+add_message_files(FILES
+  AppInstallationState.msg
+  AppList.msg
+  App.msg
+  AppStatus.msg
+  ClientApp.msg
+  ExchangeApp.msg
+  Icon.msg
+  KeyValue.msg
+  StatusCodes.msg
+  )
 
-#set the default path for built executables to the "bin" directory
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-#set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+add_service_files(FILES
+  GetAppDetails.srv
+  GetInstallationState.srv
+  InstallApp.srv
+  ListApps.srv
+  StartApp.srv
+  StopApp.srv
+  UninstallApp.srv
+  )
 
-rosbuild_genmsg()
-rosbuild_gensrv()
+generate_messages()
+catkin_package(CATKIN_DEPENDS rospy rosunit roslaunch rosgraph message_generation)
+catkin_add_nosetests(test/test_app.py)
+catkin_add_nosetests(test/test_app_list.py)
 
-rosbuild_add_pyunit(test/test_app.py)
-rosbuild_add_pyunit(test/test_app_list.py)
+install(DIRECTORY bin launch scripts
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  USE_SOURCE_PERMISSIONS
+  )

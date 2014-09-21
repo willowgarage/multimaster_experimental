@@ -1,34 +1,22 @@
-cmake_minimum_required(VERSION 2.4.6)
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+cmake_minimum_required(VERSION 2.8.3)
+project(foreign_relay)
 
-# Set the build type.  Options are:
-#  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
-#  Debug          : w/ debug symbols, w/o optimization
-#  Release        : w/o debug symbols, w/ optimization
-#  RelWithDebInfo : w/ debug symbols, w/ optimization
-#  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-#set(ROS_BUILD_TYPE RelWithDebInfo)
+find_package(catkin REQUIRED COMPONENTS
+  roscpp topic_tools)
+catkin_package(
+  CATKIN_DEPENDS roscpp topic_tools)
 
-rosbuild_init()
+add_executable(unreliable_relay src/nodes/unreliable_relay.cpp)
+target_link_libraries(unreliable_relay ${catkin_LIBRARIES})
 
-#set the default path for built executables to the "bin" directory
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-#set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+add_executable(foreign_relay src/nodes/foreign_relay.cpp)
+target_link_libraries(foreign_relay ${catkin_LIBRARIES})
 
-#uncomment if you have defined messages
-#rosbuild_genmsg()
-#uncomment if you have defined services
-#rosbuild_gensrv()
+add_executable(foreign_relay_latched src/nodes/foreign_relay_latched.cpp)
+target_link_libraries(foreign_relay_latched ${catkin_LIBRARIES})
 
-rosbuild_add_executable(unreliable_relay src/nodes/unreliable_relay.cpp)
-rosbuild_add_executable(foreign_relay src/nodes/foreign_relay.cpp)
-rosbuild_add_executable(foreign_relay_latched src/nodes/foreign_relay_latched.cpp)
-
-#common commands for building c++ executables and libraries
-#rosbuild_add_library(${PROJECT_NAME} src/example.cpp)
-#target_link_libraries(${PROJECT_NAME} another_library)
-#rosbuild_add_boost_directories()
-#rosbuild_link_boost(${PROJECT_NAME} thread)
-#rosbuild_add_executable(example examples/example.cpp)
-#target_link_libraries(example ${PROJECT_NAME})
+install(TARGETS foreign_relay_latched foreign_relay unreliable_relay
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  )

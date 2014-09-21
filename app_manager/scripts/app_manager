@@ -4,8 +4,8 @@
 usage: %prog [args]
 """
 
-import roslib
-roslib.load_manifest('app_manager')
+# import roslib
+# roslib.load_manifest('app_manager')
 import rospkg
 
 import os
@@ -13,7 +13,7 @@ import sys
 import string
 from optparse import OptionParser
 
-import app_manager
+import app_manager.app_list
 import rospy
 
 def main(argv, stdout, environ):
@@ -21,8 +21,8 @@ def main(argv, stdout, environ):
     args = rospy.myargv()
     parser = OptionParser()
 
-    applist_default = app_manager.get_default_applist_directory()
-    
+    applist_default = app_manager.app_list.get_default_applist_directory()
+
     parser.add_option("--applist", dest="applist_directory",
                       default=applist_default,
                       help="path to applist directories, semi-colon delimited", metavar="PATH")
@@ -36,7 +36,7 @@ def main(argv, stdout, environ):
     for i in options.applist_directory.split(';'):
         if not os.path.exists(i):
             parser.error("applist directory [%s] does not exist.\nUse --applist to set the correct location"%(i))
-    
+
     rospy.init_node('app_manager')
 
     robot_name = rospy.get_param('/robot/name', 'robot')
@@ -61,7 +61,7 @@ def main(argv, stdout, environ):
         except app_manager.AppException as e:
             print >> sys.stderr, "Failed to load exchange: %s"%(str(e))
             sys.exit(1)
-    
+
     am = app_manager.AppManager(robot_name, interface_master, app_list, exchange, options.singleapp)
 
     rospy.on_shutdown(am.shutdown)
