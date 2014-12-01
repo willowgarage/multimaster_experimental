@@ -1,0 +1,23 @@
+<package>
+  <name>rosproxy</name>
+  <version>0.0.0</version>
+  <description>
+     rosproxy
+  </description>
+  <maintainer email="foo@foo.com">Ken Conley</maintainer>
+  <license>BSD</license>
+  <url>http://ros.org/wiki/rosproxy</url>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rospy</build_depend>
+  <run_depend>rospy</run_depend>
+  <build_depend>rosgraph</build_depend>
+  <run_depend>rosgraph</run_depend>
+  <build_depend>roslib</build_depend>
+  <run_depend>roslib</run_depend>
+  <build_depend>rosservice</build_depend>
+  <run_depend>rosservice</run_depend>
+  <build_depend>rostopic</build_depend>
+  <run_depend>rostopic</run_depend>
+</package>
+
+

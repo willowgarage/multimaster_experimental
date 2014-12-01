@@ -1,0 +1,17 @@
+<package>
+  <name>app_manager_tutorial</name>
+  <version>0.0.0</version>
+  <description>
+     app_manager_tutorial
+  </description>
+  <maintainer email="foo@foo.com">Jeremy Leibs</maintainer>
+  <license>BSD</license>
+  <url>http://ros.org/wiki/app_manager_tutorial</url>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rospy</build_depend>
+  <run_depend>rospy</run_depend>
+  <build_depend>app_manager</build_depend>
+  <run_depend>app_manager</run_depend>
+</package>
+
+

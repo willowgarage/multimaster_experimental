@@ -43,6 +43,13 @@ import rospy
 
 import roslaunch.parent
 import roslaunch.pmon
+import roslib
+
+
+# try:
+#     import roslib; roslib.load_manifest('app_manager')
+# except:
+#     pass
 
 from .app import AppDefinition, load_AppDefinition_by_name
 from .exceptions import LaunchException, AppException, InvalidAppException, NotFoundException
