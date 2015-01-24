@@ -265,7 +265,10 @@ class AppManager(object):
 
     def handle_stop_app(self, req):
         rospy.loginfo("handle stop app: %s"%(req.name))
-        return self.stop_app(req.name)
+        if req.name == '*':
+            return self.stop_apps()
+        else:
+            return self.stop_app(req.name)
 
     def app_monitor(self, appname):
         while appname in self._launches:
