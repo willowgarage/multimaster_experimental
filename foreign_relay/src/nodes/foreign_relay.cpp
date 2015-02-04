@@ -65,7 +65,7 @@ void foreign_advertise(const std::string &type);
 void foreign_unadvertise();
 void foreign_subscribe();
 void foreign_unsubscribe();
-void in_cb(const boost::shared_ptr<ShapeShifter const>& msg);
+void in_cb(const ros::MessageEvent<ShapeShifter>& msg_event);
 
 void foreign_advertise(const std::string &type)
 {
@@ -176,29 +176,31 @@ void foreign_unsubscribe()
   ros::XMLRPCManager::instance()->releaseXMLRPCClient(client);
 }
 
-void in_cb(const boost::shared_ptr<ShapeShifter const>& msg)
+void in_cb(const ros::MessageEvent<ShapeShifter>& msg_event)
 {
+  boost::shared_ptr<ShapeShifter const> const &msg = msg_event.getConstMessage();
+
   if (!g_advertised)
   {
     ROS_INFO("Received message from: %s",
-             (*(msg->__connection_header))["callerid"].c_str());
+             msg_event.getConnectionHeader()["callerid"].c_str());
     if(g_mode == MODE_SUB)
     {
       // Advertise locally
       g_pub = msg->advertise(*g_node, g_local_topic, 10);
       ROS_INFO("Advertised locally as %s, with type %s", 
                g_local_topic.c_str(),
-               (*(msg->__connection_header))["type"].c_str());
+               msg_event.getConnectionHeader()["type"].c_str());
     }
     else
     {
       // We advertise locally as a hack, to get things set up properly.
       g_pub = msg->advertise(*g_node, g_foreign_topic, 10);
       // Advertise at the foreign master.
-      foreign_advertise((*(msg->__connection_header))["type"]);
+      foreign_advertise(msg_event.getConnectionHeader()["type"]);
       ROS_INFO("Advertised foreign as %s, with type %s", 
                g_foreign_topic.c_str(),
-               (*(msg->__connection_header))["type"].c_str());
+               msg_event.getConnectionHeader()["type"].c_str());
     }
     g_advertised = true;
   }
@@ -246,19 +248,39 @@ int main(int argc, char **argv)
   ros::NodeHandle pnh("~");
   g_node = &pnh;
 
-  ros::Subscriber sub;
+  boost::shared_ptr<ros::Subscriber> sub(new ros::Subscriber);
   if(g_mode == MODE_SUB)
   {
     // We subscribe locally as a hack, to get our callback set up properly.
-    sub = n.subscribe<ShapeShifter>(g_foreign_topic, 10, &in_cb, 
-                                    ros::TransportHints().unreliable());
+    ros::SubscribeOptions ops;
+    ops.topic = g_foreign_topic;
+    ops.queue_size = 10;
+    ops.md5sum = ros::message_traits::md5sum<topic_tools::ShapeShifter>();
+    ops.datatype = ros::message_traits::datatype<topic_tools::ShapeShifter>();
+    ops.transport_hints = ros::TransportHints().unreliable();
+    ops.helper = ros::SubscriptionCallbackHelperPtr(
+        new ros::SubscriptionCallbackHelperT<const ros::MessageEvent<topic_tools::ShapeShifter const>& >(
+            boost::bind(&in_cb, _1)
+        )
+    );
+    *sub = n.subscribe(ops);
     // Subscribe at foreign master.
     foreign_subscribe();
   }
   else
   {
     // Subscribe at local master.
-    sub = n.subscribe<ShapeShifter>(g_local_topic, 10, &in_cb);
+    ros::SubscribeOptions ops;
+    ops.topic = g_local_topic;
+    ops.queue_size = 10;
+    ops.md5sum = ros::message_traits::md5sum<topic_tools::ShapeShifter>();
+    ops.datatype = ros::message_traits::datatype<topic_tools::ShapeShifter>();
+    ops.helper = ros::SubscriptionCallbackHelperPtr(
+        new ros::SubscriptionCallbackHelperT<const ros::MessageEvent<topic_tools::ShapeShifter const>& >(
+            boost::bind(&in_cb, _1)
+        )
+    );
+    *sub = n.subscribe(ops);
   }
 
   ros::spin();
