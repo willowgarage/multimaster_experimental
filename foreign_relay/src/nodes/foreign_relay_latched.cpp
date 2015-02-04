@@ -84,12 +84,14 @@ void foreign_unadvertise()
   ros::XMLRPCManager::instance()->releaseXMLRPCClient(client);
 }
 
-void in_cb(const boost::shared_ptr<ShapeShifter const>& msg)
+void in_cb(const ros::MessageEvent<ShapeShifter>& msg_event)
 {
+  boost::shared_ptr<ShapeShifter const> const &msg = msg_event.getConstMessage();
+
   if (!g_advertised)
   {
     g_pub = msg->advertise(*g_node, g_output_topic, 10, true);
-    foreign_advertise((*(msg->__connection_header))["type"]);
+    foreign_advertise(msg_event.getConnectionHeader()["type"]);
     g_advertised = true;
     printf("advertised as %s\n", g_output_topic.c_str());
   }
