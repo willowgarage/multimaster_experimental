@@ -1,21 +1,24 @@
 #!/usr/bin/env python
 
-import sys
 import os
+import sys
 import time
-import xmlrpclib
-import urlparse
+
+from urllib.parse import urlsplit
+from xmlrpc.client import ServerProxy
 
 USAGE = 'foreign_relay.py {adv|sub} topic foreign_master_uri'
 
 g_publishers = {}
 
+
 # Clean up the stuff that we registered
 def shutdown(foreign_master_uri):
-    server = xmlrpclib.ServerProxy(foreign_master_uri)
+    server = ServerProxy(foreign_master_uri)
     for p in g_publishers:
         server.unregisterPublisher(p, topic, g_publishers[p])
-        print 'unregistering %s @ %s'%(p,g_publishers[p])
+        print('unregistering %s @ %s' % (p, g_publishers[p]))
+
 
 def go(mode, topic, foreign_master_uri, update_period):
     publishers = {}
@@ -25,8 +28,8 @@ def go(mode, topic, foreign_master_uri, update_period):
     else:
         sub_uri = os.environ['ROS_MASTER_URI']
         adv_uri = foreign_master_uri
-    server_sub = xmlrpclib.ServerProxy(sub_uri)
-    server_adv = xmlrpclib.ServerProxy(adv_uri)
+    server_sub = ServerProxy(sub_uri)
+    server_adv = ServerProxy(adv_uri)
     while 1:
         code, msg, topics = server_sub.getPublishedTopics('', '')
         # Determine the type of the topic
@@ -47,29 +50,29 @@ def go(mode, topic, foreign_master_uri, update_period):
                         dup = False
                         for pp in publishers:
                             if p.startswith(pp):
-                                #print '%s is dup of %s; skipping'%(p,pp)
                                 dup = True
                                 break
                         if dup:
                             continue
                         code, msg, uri = server_sub.lookupNode('', p)
                         # Uniquify by master
-                        sp = urlparse.urlsplit(sub_uri)
-                        mangled_name = '%s_%s_%s'%(p,sp.hostname,sp.port)
+                        sp = urlsplit(sub_uri)
+                        mangled_name = '%s_%s_%s' % (p, sp.hostname, sp.port)
                         new_publishers[mangled_name] = uri
             # Update remote advertisements appropriately
             subtractions = set(publishers.keys()) - set(new_publishers.keys())
             additions = set(new_publishers.keys()) - set(publishers.keys())
             for s in subtractions:
                 server_adv.unregisterPublisher(s, topic, publishers[s])
-                print 'unregistering %s @ %s'%(s,publishers[s])
+                print('unregistering %s @ %s' % (s, publishers[s]))
             for a in additions:
                 server_adv.registerPublisher(a, topic, type, new_publishers[a])
-                print 'registering %s @ %s'%(a,new_publishers[a])
+                print('registering %s @ %s' % (a, new_publishers[a]))
             publishers = new_publishers
             global g_publishers
             g_publishers = publishers
         time.sleep(update_period)
+
 
 def parse(argvin):
     argv = []
@@ -78,15 +81,16 @@ def parse(argvin):
         if arg.find(":=") == -1:
             argv.append(arg)
     if len(argv) != 4:
-        print USAGE
+        print(USAGE)
         return None
     mode = argv[1]
     if mode != 'sub' and mode != 'adv':
-        print USAGE
+        print(USAGE)
         return None
     topic = argv[2]
     foreign_master_uri = argv[3]
     return (mode, topic, foreign_master_uri)
+
 
 if __name__ == '__main__':
     ret = parse(sys.argv)
@@ -96,7 +100,7 @@ if __name__ == '__main__':
     update_period = 1.0
     try:
         go(mode, topic, foreign_master_uri, update_period)
-    except KeyboardInterrupt, e:
+    except KeyboardInterrupt:
         if mode == 'adv':
             shutdown(foreign_master_uri)
         else:
